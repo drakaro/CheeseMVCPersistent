@@ -5,14 +5,22 @@ using System.Collections.Generic;
 
 namespace CheeseMVC.Migrations
 {
-    public partial class AddMenu : Migration
+    public partial class AddCategory : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "Type",
-                table: "Cheeses",
-                newName: "CategoryID");
+            migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.ID);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Menus",
@@ -25,6 +33,27 @@ namespace CheeseMVC.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Menus", x => x.ID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Cheeses",
+                columns: table => new
+                {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    CategoryID = table.Column<int>(nullable: false),
+                    Description = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cheeses", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Cheeses_Categories_CategoryID",
+                        column: x => x.CategoryID,
+                        principalTable: "Categories",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -52,44 +81,29 @@ namespace CheeseMVC.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Cheeses_CategoryID",
-                table: "Cheeses",
-                column: "CategoryID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_CheeseMenus_MenuID",
                 table: "CheeseMenus",
                 column: "MenuID");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Cheeses_Categories_CategoryID",
+            migrationBuilder.CreateIndex(
+                name: "IX_Cheeses_CategoryID",
                 table: "Cheeses",
-                column: "CategoryID",
-                principalTable: "Categories",
-                principalColumn: "ID",
-                onDelete: ReferentialAction.Cascade);
+                column: "CategoryID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Cheeses_Categories_CategoryID",
-                table: "Cheeses");
-
             migrationBuilder.DropTable(
                 name: "CheeseMenus");
 
             migrationBuilder.DropTable(
+                name: "Cheeses");
+
+            migrationBuilder.DropTable(
                 name: "Menus");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Cheeses_CategoryID",
-                table: "Cheeses");
-
-            migrationBuilder.RenameColumn(
-                name: "CategoryID",
-                table: "Cheeses",
-                newName: "Type");
+            migrationBuilder.DropTable(
+                name: "Categories");
         }
     }
 }
